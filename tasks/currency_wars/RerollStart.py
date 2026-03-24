@@ -42,6 +42,30 @@ class RerollStart(CurrencyWars):
         self.invest_strategy_stage_limit = 2  # 投资策略阶段上限，超过后不再检测投资策略
         self.invest_strategy_satisfied = False  # 满意标志
 
+    def run(self):
+        self.is_running = True
+        i = 0
+        while self.is_running:
+            if self.runtimes > 0 and i >= self.runtimes:
+                break
+            i += 1
+            # 每局重置状态
+            self.reroll = False
+            self.invest_strategy_stage = 0
+            self.invest_strategy_satisfied = False
+
+            if self.runtimes == 0:
+                logger.info(f"第{i}次进入货币战争（无限模式）")
+            else:
+                logger.info(f"第{i}次进入货币战争，剩余{self.runtimes - i}次")
+            try:
+                if self.start_game():
+                    self.game_loop()
+            except Exception as e:
+                logger.error(e)
+                return False
+        return True
+
     @staticmethod
     def _normalize_ocr_text(text: str) -> str:
         return text.strip().replace("·", "").replace("•", "").replace("?", "").replace(" ", "")
