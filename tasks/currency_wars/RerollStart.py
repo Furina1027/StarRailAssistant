@@ -192,6 +192,26 @@ class RerollStart(CurrencyWars):
             return False
         return True
 
+    def game_loop(self):
+        while self.is_running:
+            # 跳过水晶收集和角色识别，直接拖动第一个手牌到前台第一个位置
+            self.operator.drag_to(
+                self.in_hand_area[0][0], self.in_hand_area[0][1],   # 手牌第一个位置 (0.229, 0.844)
+                self.on_field_area[0][0], self.on_field_area[0][1],  # 前台第一个位置 (0.386, 0.365)
+            )
+            self.operator.sleep(0.5)
+
+            # 直接开始战斗（battle() 内部会处理编队未满的弹窗）
+            if not self.battle():
+                break
+            # 关卡切换（包含投资策略检测 + 重开判断逻辑）
+            if not self.stage_transition():
+                break
+            if self.is_game_over:
+                break
+        self.reset_character()
+        return True
+
     def _detect_invest_strategy(self):
         detected_invest_strategy = list()
         raw_results = self.operator.ocr(
