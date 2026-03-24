@@ -41,6 +41,7 @@ class RerollStart(CurrencyWars):
         self.invest_strategy_stage = 0  # 投资策略阶段
         self.invest_strategy_stage_limit = 2  # 投资策略阶段上限，超过后不再检测投资策略
         self.invest_strategy_satisfied = False  # 满意标志
+        self.invest_env_satisfied = False  # 投资环境满足标志
 
     @staticmethod
     def _normalize_ocr_text(text: str) -> str:
@@ -124,6 +125,7 @@ class RerollStart(CurrencyWars):
                 self.operator.click_point(0.25 * (result + 1), 0.27, tag="投资环境")  # 根据投资环境的位置计算点击坐标，每个环境占屏幕宽度的25%
                 self.operator.click_img(IMG.ENSURE2, after_sleep=1)
                 logger.info("投资环境符合要求，继续游戏...")
+                self.invest_env_satisfied = True
                 break
             
             logger.info("投资环境不符合要求，尝试刷新...")
@@ -132,20 +134,30 @@ class RerollStart(CurrencyWars):
                 self.operator.click_box(refresh_box, after_sleep=1)
             else:
                 if self.wanted_invest_env:
-                    logger.info("无法刷新，准备重开...")
-                    self.reroll = True
+                    logger.info("无法刷新，投资环境不满足...")
                 super().handle_invest_environment()
 
     def handle_game_entered(self) -> bool:
-        if self.reroll:
+        if self.reroll:  # Boss信息不满足
             self.abort_and_return()
             self.reroll = False
             return False
+        if self.invest_env_satisfied:
+            # 投资环境已满足，OR条件达成
+            logger.info("投资环境满足要求，停止刷开局")
+            self.is_running = False
+            return False
         if not self.wanted_invest_strategies:
-            # 如果不需要重开，且没有投资策略要求，可中止刷开局
+            # 环境未满足，且没有投资策略可作为备选
+            if self.wanted_invest_env:
+                logger.info("投资环境不满足且无投资策略备选，准备重开...")
+                self.abort_and_return()
+                return False
             logger.info("已刷到满足要求的开局，停止刷开局")
             self.is_running = False
             return False
+        # 环境未满足，但有投资策略要求 → 继续游戏去检查策略
+        logger.info("投资环境未满足，继续检查投资策略...")
         return True
 
     def handle_invest_strategy(self):
