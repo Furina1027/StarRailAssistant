@@ -193,13 +193,19 @@ class RerollStart(CurrencyWars):
         return True
 
     def game_loop(self):
+        first_round = True
         while self.is_running:
-            # 跳过水晶收集和角色识别，直接拖动第一个手牌到前台第一个位置
-            self.operator.drag_to(
-                self.in_hand_area[0][0], self.in_hand_area[0][1],   # 手牌第一个位置 (0.229, 0.844)
-                self.on_field_area[0][0], self.on_field_area[0][1],  # 前台第一个位置 (0.386, 0.365)
-            )
-            self.operator.sleep(0.5)
+            if first_round:
+                # 第一轮：拖动第一个手牌到前台第一个位置
+                self.operator.drag_to(
+                    self.in_hand_area[0][0], self.in_hand_area[0][1],   # 手牌第一个位置 (0.229, 0.844)
+                    self.on_field_area[0][0], self.on_field_area[0][1],  # 前台第一个位置 (0.386, 0.365)
+                )
+                self.operator.sleep(0.5)
+                first_round = False
+            else:
+                # 后续轮次：点击备战区关闭商店，不再放置角色
+                self.operator.click_point(0.5, 0.55, after_sleep=1)
 
             # 直接开始战斗（battle() 内部会处理编队未满的弹窗）
             if not self.battle():
