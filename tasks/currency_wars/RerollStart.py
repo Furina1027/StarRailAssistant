@@ -220,18 +220,32 @@ class RerollStart(CurrencyWars):
         first_round = True
         while self.is_running:
             if first_round:
-                # 第一轮：拖动第一个手牌到前台第一个位置
+                # 默认拖第一个手牌
+                hand_index = 0
                 self.operator.drag_to(
-                    self.in_hand_area[0][0], self.in_hand_area[0][1],   # 手牌第一个位置 (0.229, 0.844)
-                    self.on_field_area[0][0], self.on_field_area[0][1],  # 前台第一个位置 (0.386, 0.365)
+                    self.in_hand_area[hand_index][0], self.in_hand_area[hand_index][1],
+                    self.on_field_area[0][0], self.on_field_area[0][1],
                 )
                 self.operator.sleep(0.5)
+                # 只有出现"无法上场"才逐个尝试后续位置
+                while self.operator.locate(CWIMG.CANNOT_BE_FIELDED, from_x=0.25, from_y=0.25, to_x=0.75, to_y=0.75):
+                    logger.warning(f"手牌位置{hand_index}无法上场，尝试下一个")
+                    self.operator.click_point(0.5, 0.5, after_sleep=1)  # 关闭提示
+                    hand_index += 1
+                    if hand_index >= len(self.in_hand_area):
+                        logger.error("所有手牌均无法上场")
+                        break
+                    self.operator.drag_to(
+                        self.in_hand_area[hand_index][0], self.in_hand_area[hand_index][1],
+                        self.on_field_area[0][0], self.on_field_area[0][1],
+                    )
+                    self.operator.sleep(0.5)
                 first_round = False
             else:
                 # 后续轮次：点击备战区关闭商店，不再放置角色
                 self.operator.click_point(0.5, 0.55, after_sleep=1)
 
-            # 直接开始战斗（battle() 内部会处理编队未满的弹窗）
+            # 直接开始战斗
             if not self.battle():
                 break
             # 关卡切换（包含投资策略检测 + 重开判断逻辑）
