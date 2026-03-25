@@ -77,6 +77,7 @@ class TPIMG:
     LIMIT = f"{BASE}/limit.png"
     ORNAMENT_EXTRACTION = f"{BASE}/ornament_extraction (%s).png"
     ORNAMENT_EXTRACTION_NO_SAVE = f"{BASE}/ornament_extraction_no_save.png"
+    NO_SAVE = f"{BASE}/no_save.png"
     ORNAMENT_EXTRACTION_PAGE = f"{BASE}/ornament_extraction_page.png"
     PLUS = f"{BASE}/plus.png"
     QUIT_BATTLE = f"{BASE}/quit_battle.png"
@@ -178,6 +179,7 @@ class DUIMG:
     BASE = "resources/img/differential_universe"
     BASE_EFFECT_SELECT = f"{BASE}/base_effect_select.png"
     BLESSING_SELECT = f"{BASE}/blessing_select.png"
+    MASK_SELECT = f"{BASE}/mask_select.png"
     BONUS_POINTS = f"{BASE}/bonus_points.png"
     CLOSE = f"{BASE}/close.png"
     COLLECTION = f"{BASE}/collection.png"
@@ -190,6 +192,7 @@ class DUIMG:
     LAUNCH_DIFFERENTIAL_UNIVERSE = f"{BASE}/launch_differential_universe.png"
     PERIODIC_CALCULUS = f"{BASE}/periodic_calculus.png"
     RETURN = f"{BASE}/return.png"
+    ENSURE = f"{BASE}/ensure.png"
 # endregion
 
 # region 任务完成专用
